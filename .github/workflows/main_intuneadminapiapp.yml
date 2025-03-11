@@ -41,13 +41,23 @@ jobs:
     environment:
       name: 'Production'
       url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
-    
+    permissions:
+      id-token: write #This is required for requesting the JWT
+      contents: read #This is required for actions/checkout
+
     steps:
       - name: Download artifact from build job
         uses: actions/download-artifact@v4
         with:
           name: .net-app
       
+      - name: Login to Azure
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_7370284B27D6446C9B5C3FDDBCA29A35 }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_4B163E0A83D548509BDED3E8EA2D41E5 }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_D81C01CB23DD4EB2B5E0E79D652ECA32 }}
+
       - name: Deploy to Azure Web App
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v3
@@ -55,4 +65,4 @@ jobs:
           app-name: 'IntuneAdminApiApp'
           slot-name: 'Production'
           package: .
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_F1FABA48E0E74FAAABEBC2C1DB564A32 }}
+          
